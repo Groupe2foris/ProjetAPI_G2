@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, status
 from pydantic import BaseModel, Field
 
 # Initialiser FastAPI
@@ -127,6 +127,18 @@ def create_project(project: ProjectCreate) -> Project:
 
     return Project(**new_project)
 
+
+@app.get(
+    "/projects",
+    response_model=List[Project],
+    tags=["Projects"],
+    summary="Lister tous les projets",
+    description="Retourne la liste de tous les projets étudiants",
+)
+def get_projects() -> List[Project]:
+    db = load_db()
+    projects = db.get("projects", [])
+    return [Project(**p) for p in projects]
 
 
 def health_check() -> dict:
