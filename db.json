@@ -1,0 +1,31 @@
+{
+  "projects": [
+    {
+      "id": "309aed4f-275b-467e-8ee7-eefb7909057f",
+      "studentName": "Abigael",
+      "course": "Python",
+      "githubUrl": "https://github.com/alice/projet-python",
+      "grade": null,
+      "createdAt": "2025-11-09T22:50:32.896988",
+      "updatedAt": "2025-11-09T22:50:32.896988"
+    },
+    {
+      "id": "8ca7a960-2e4e-4700-be94-a1455c46a40d",
+      "studentName": "komdjam",
+      "course": "SQL",
+      "githubUrl": "https://github.com/alice/projet-SQL",
+      "grade": null,
+      "createdAt": "2025-11-09T22:50:59.983468",
+      "updatedAt": "2025-11-09T22:50:59.983468"
+    },
+    {
+      "id": "6b454e09-af8b-4590-982e-93824199afd9",
+      "studentName": "Marie",
+      "course": "Python",
+      "githubUrl": "https://github.com/alice/projet-python",
+      "grade": 20.0,
+      "createdAt": "2025-11-09T22:51:22.812673",
+      "updatedAt": "2025-11-09T22:52:41.376282"
+    }
+  ]
+}
