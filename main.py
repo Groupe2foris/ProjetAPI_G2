@@ -128,6 +128,38 @@ def create_project(project: ProjectCreate) -> Project:
     return Project(**new_project)
 
 @app.get(
+    "/projects/course/{course_name}",
+    response_model=List[Project],
+    tags=["Projects"],
+    summary="Filtrer les projets par cours",
+    description="Récupérer tous les projets d'un cours spécifique",
+)
+def get_projects_by_course(course_name: str) -> List[Project]:
+    """
+    **Issue #6 :** Filtrer et retourner tous les projets d'un cours spécifique
+
+    Paramètres:
+    - `course_name`: Nom du cours
+
+    Retourne: Liste des projets du cours
+    """
+    db = load_db()
+
+    projects = [
+        Project(**project)
+        for project in db["projects"]
+        if project["course"].lower() == course_name.lower()
+    ]
+
+    if not projects:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Aucun projet trouvé pour le cours '{course_name}'",
+        )
+
+    return projects
+
+@app.get(
     "/projects/{project_id}",
     response_model=Project,
     tags=["Projects"],
