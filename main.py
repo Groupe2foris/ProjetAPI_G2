@@ -148,6 +148,27 @@ def get_project(project_id: str) -> Project:
     for project in db["projects"]:
         if project["id"] == project_id:
             return Project(**project)
+@app.delete(
+    "/projects/{project_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["Projects"],
+    summary="Supprimer une soumission",
+    description="Supprimer un projet de la base de données",
+)
+def delete_project(project_id: str) -> None:
+    """
+    **Issue #5 :** Supprimer une soumission de projet
+
+    Paramètres:
+    - `project_id`: ID unique du projet à supprimer
+    """
+    db = load_db()
+
+    for i, project in enumerate(db["projects"]):
+        if project["id"] == project_id:
+            db["projects"].pop(i)
+            save_db(db)
+            return
 
     raise HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
