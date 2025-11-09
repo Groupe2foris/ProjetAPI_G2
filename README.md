@@ -1,5 +1,4 @@
-# ProjetAPI_G2
-API REST pour gérer les soumissions de projets étudiants
+
 # ProjetAPI - Documentation Complète
 
 Une **API REST complète** pour gérer les soumissions de projets étudiants pour un cours. Développée avec **FastAPI** et **Pydantic**, ce projet démontre les meilleures pratiques de développement logiciel en équipe : Git Flow, Pull Requests, Revues de code, CI/CD, et Automatisation.
