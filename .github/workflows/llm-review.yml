@@ -3,7 +3,7 @@ name: LLM Code Review
 on:
   pull_request:
     types: [opened, synchronize]
-    branches: [ develop ]
+    branches: [ devops ]
 
 jobs:
   review_and_notify:
