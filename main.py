@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, status
 from pydantic import BaseModel, Field
 
 # Initialiser FastAPI
@@ -127,6 +127,65 @@ def create_project(project: ProjectCreate) -> Project:
 
     return Project(**new_project)
 
+@app.get(
+    "/projects/{project_id}",
+    response_model=Project,
+    tags=["Projects"],
+    summary="Obtenir les détails d'un projet",
+    description="Récupérer les informations complètes d'un projet spécifique",
+)
+def get_project(project_id: str) -> Project:
+    """
+    **Issue #3 :** Obtenir les détails d'un projet par son ID
+
+    Paramètres:
+    - `project_id`: ID unique du projet
+
+    Retourne: Les détails du projet
+    """
+    db = load_db()
+
+    for project in db["projects"]:
+        if project["id"] == project_id:
+            return Project(**project)
+@app.delete(
+    "/projects/{project_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["Projects"],
+    summary="Supprimer une soumission",
+    description="Supprimer un projet de la base de données",
+)
+def delete_project(project_id: str) -> None:
+    """
+    **Issue #5 :** Supprimer une soumission de projet
+
+    Paramètres:
+    - `project_id`: ID unique du projet à supprimer
+    """
+    db = load_db()
+
+    for i, project in enumerate(db["projects"]):
+        if project["id"] == project_id:
+            db["projects"].pop(i)
+            save_db(db)
+            return
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Projet avec l'ID {project_id} non trouvé",
+    )
+
+@app.get(
+    "/projects",
+    response_model=List[Project],
+    tags=["Projects"],
+    summary="Lister tous les projets",
+    description="Retourne la liste de tous les projets étudiants",
+)
+def get_projects() -> List[Project]:
+    db = load_db()
+    projects = db.get("projects", [])
+    return [Project(**p) for p in projects]
 
 
 def health_check() -> dict:
