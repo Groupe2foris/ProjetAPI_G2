@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime
 from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI, status
 from pydantic import BaseModel, Field
 
 # Initialiser FastAPI
@@ -174,6 +174,18 @@ def delete_project(project_id: str) -> None:
         status_code=status.HTTP_404_NOT_FOUND,
         detail=f"Projet avec l'ID {project_id} non trouvé",
     )
+
+@app.get(
+    "/projects",
+    response_model=List[Project],
+    tags=["Projects"],
+    summary="Lister tous les projets",
+    description="Retourne la liste de tous les projets étudiants",
+)
+def get_projects() -> List[Project]:
+    db = load_db()
+    projects = db.get("projects", [])
+    return [Project(**p) for p in projects]
 
 
 def health_check() -> dict:
