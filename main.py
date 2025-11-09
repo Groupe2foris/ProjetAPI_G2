@@ -127,6 +127,32 @@ def create_project(project: ProjectCreate) -> Project:
 
     return Project(**new_project)
 
+@app.get(
+    "/projects/{project_id}",
+    response_model=Project,
+    tags=["Projects"],
+    summary="Obtenir les détails d'un projet",
+    description="Récupérer les informations complètes d'un projet spécifique",
+)
+def get_project(project_id: str) -> Project:
+    """
+    **Issue #3 :** Obtenir les détails d'un projet par son ID
+
+    Paramètres:
+    - `project_id`: ID unique du projet
+
+    Retourne: Les détails du projet
+    """
+    db = load_db()
+
+    for project in db["projects"]:
+        if project["id"] == project_id:
+            return Project(**project)
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Projet avec l'ID {project_id} non trouvé",
+    )
 
 
 def health_check() -> dict:
