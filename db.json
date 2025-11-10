@@ -28,7 +28,7 @@
       "updatedAt": "2025-11-09T22:52:41.376282"
     },
     {
-    "id": "83102986-d71c-4e6d-9d9e-0c84fb3e3b9e",
+      "id": "83102986-d71c-4e6d-9d9e-0c84fb3e3b9e",
       "studentName": "Stephane Nguetsa",
       "course": "Python Avanc\u00e9",
       "githubUrl": "https://github.com/NOX-Theteenager/ProjetAPI_G2",
@@ -44,6 +44,24 @@
       "grade": null,
       "createdAt": "2025-11-09T22:42:04.371094",
       "updatedAt": "2025-11-09T22:42:04.371094"
+    },
+    {
+      "id": "5ddcac6e-babe-4dda-89f6-89036e42ee57",
+      "studentName": "Angelique",
+      "course": "Devops",
+      "githubUrl": "https://github.com/Groupe2foris/ProjetAPI_G2/",
+      "grade": null,
+      "createdAt": "2025-11-10T14:43:09.328107",
+      "updatedAt": "2025-11-10T14:43:09.328107"
+    },
+    {
+      "id": "509adbdf-b601-430f-9ba6-230938b5b272",
+      "studentName": "Kamdem",
+      "course": "Devops",
+      "githubUrl": "https://github.com/Groupe2/ProjetAPI_G2/",
+      "grade": null,
+      "createdAt": "2025-11-10T14:43:50.495430",
+      "updatedAt": "2025-11-10T14:43:50.495430"
     }
   ]
 }
