@@ -129,6 +129,23 @@ def create_project(project: ProjectCreate) -> Project:
 
 
 @app.get(
+    "/projects",
+    response_model=List[Project],
+    tags=["Projects"],
+    summary="Lister tous les projets",
+    description="Récupérer la liste complète de tous les projets soumis",
+)
+def list_projects() -> List[Project]:
+    """
+    **Issue #2 :** Lister tous les projets
+
+    Retourne: Une liste de tous les projets
+    """
+    db = load_db()
+    return [Project(**project) for project in db["projects"]]
+
+
+@app.get(
     "/projects/{project_id}",
     response_model=Project,
     tags=["Projects"],
@@ -149,6 +166,43 @@ def get_project(project_id: str) -> Project:
     for project in db["projects"]:
         if project["id"] == project_id:
             return Project(**project)
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Projet avec l'ID {project_id} non trouvé",
+    )
+
+
+@app.put(
+    "/projects/{project_id}/grade",
+    response_model=Project,
+    tags=["Projects"],
+    summary="Noter un projet",
+    description="Attribuer une note à un projet (rôle professeur)",
+)
+def grade_project(project_id: str, grade_data: ProjectGrade) -> Project:
+    """
+    **Issue #4 :** Noter un projet
+
+    Paramètres:
+    - `project_id`: ID unique du projet
+    - `grade`: Note à attribuer (0-20)
+
+    Retourne: Le projet mis à jour avec la nouvelle note
+    """
+    db = load_db()
+
+    for project in db["projects"]:
+        if project["id"] == project_id:
+            project["grade"] = grade_data.grade
+            project["updatedAt"] = datetime.now().isoformat()
+            save_db(db)
+            return Project(**project)
+
+    raise HTTPException(
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=f"Projet avec l'ID {project_id} non trouvé",
+    )
 
 
 @app.delete(
@@ -180,18 +234,44 @@ def delete_project(project_id: str) -> None:
 
 
 @app.get(
-    "/projects",
+    "/projects/course/{course_name}",
     response_model=List[Project],
     tags=["Projects"],
-    summary="Lister tous les projets",
-    description="Retourne la liste de tous les projets étudiants",
+    summary="Filtrer les projets par cours",
+    description="Récupérer tous les projets d'un cours spécifique",
 )
-def get_projects() -> List[Project]:
+def get_projects_by_course(course_name: str) -> List[Project]:
+    """
+    **Issue #6 :** Filtrer et retourner tous les projets d'un cours spécifique
+
+    Paramètres:
+    - `course_name`: Nom du cours
+
+    Retourne: Liste des projets du cours
+    """
     db = load_db()
-    projects = db.get("projects", [])
-    return [Project(**p) for p in projects]
+
+    projects = [
+        Project(**project)
+        for project in db["projects"]
+        if project["course"].lower() == course_name.lower()
+    ]
+
+    if not projects:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Aucun projet trouvé pour le cours '{course_name}'",
+        )
+
+    return projects
 
 
+@app.get(
+    "/health",
+    tags=["Health"],
+    summary="Vérifier la santé de l'API",
+    description="Endpoint de vérification de l'état de l'API",
+)
 def health_check() -> dict:
     """Vérifier que l'API fonctionne correctement"""
     return {"status": "ok", "message": "ProjetAPI is running"}
