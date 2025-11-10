@@ -8,9 +8,10 @@ on:
 jobs:
   review_and_notify:
     runs-on: ubuntu-latest
-permissions:
-  contents: read
-  pull-requests: write
+    permissions:
+      contents: read
+      pull-requests: write
+
     steps:
       - uses: actions/checkout@v3
         with:
@@ -24,7 +25,7 @@ permissions:
         run: |
           git fetch origin ${{ github.event.pull_request.base.sha }} --depth=1
           git fetch origin HEAD
-          DIFF=$(git diff --unified=5 origin/${{ github.event.pull_request.base.sha }}...HEAD | head -c 30000)  # Limite à 30k chars pour éviter token limits
+          DIFF=$(git diff --unified=5 origin/${{ github.event.pull_request.base.sha }}...HEAD | head -c 30000)
           echo "diff<<EOF" >> $GITHUB_OUTPUT
           echo "$DIFF" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
@@ -47,7 +48,6 @@ permissions:
           import google.generativeai as genai
 
           genai.configure(api_key=os.environ['GEMINI_API_KEY'])
-
           model = genai.GenerativeModel('gemini-1.5-flash')
 
           prompt = """Tu es un relecteur de code expert. Analyse ce diff et fournis des pistes d'amélioration ou liste les bugs trouvés. Réponds en français.
@@ -103,19 +103,18 @@ permissions:
           REVIEW="${{ steps.llm.outputs.review }}"
           for to in "${emails[@]}"; do
             interest="${interests[$to]:-programmation}"
-            interest="${interest//_/ }"  # Remplace _ par espaces si besoin
+            interest="${interest//_/ }"
 
             cat <<EOF > motiv_script.py
             import os
             import google.generativeai as genai
 
             genai.configure(api_key=os.environ['GEMINI_API_KEY'])
-
             model = genai.GenerativeModel('gemini-1.5-flash')
 
             prompt = """Génère un court paragraphe motivant (3-4 phrases maximum) pour une introduction d'email. 
-            Utilise une ANALOGIE créative et positive tirée de '$interest' pour inspirer l'utilisateur à corriger son code avec détermination, comme une quête victorieuse où chaque bug résolu mène à une réussite plus grande. 
-            Rends-le engageant, encourageant la persévérance et la créativité en programmation. Réponds en français."""
+            Utilise une ANALOGIE créative et positive tirée de '$interest' pour inspirer l'utilisateur à corriger son code avec détermination. 
+            Réponds en français."""
 
             try:
                 response = model.generate_content(prompt)
