@@ -28,9 +28,9 @@
       "updatedAt": "2025-11-09T22:52:41.376282"
     },
     {
-    "id": "83102986-d71c-4e6d-9d9e-0c84fb3e3b9e",
+      "id": "83102986-d71c-4e6d-9d9e-0c84fb3e3b9e",
       "studentName": "Stephane Nguetsa",
-      "course": "Python Avanc\u00e9",
+      "course": "Python Avancé",
       "githubUrl": "https://github.com/NOX-Theteenager/ProjetAPI_G2",
       "grade": null,
       "createdAt": "2025-11-09T20:23:33.167386",
@@ -44,6 +44,24 @@
       "grade": null,
       "createdAt": "2025-11-09T22:42:04.371094",
       "updatedAt": "2025-11-09T22:42:04.371094"
+    },
+    {
+      "id": "c9ec5137-c039-478c-81f7-fddc62297bc5",
+      "studentName": "Alice Dupont",
+      "course": "Python Avance",
+      "githubUrl": "https://github.com/alice/projet-python",
+      "grade": null,
+      "createdAt": "2025-11-10T13:25:32.336015",
+      "updatedAt": "2025-11-10T13:25:32.336015"
+    },
+    {
+      "id": "4b509222-60eb-4fd4-8788-ef7aada48c97",
+      "studentName": "Donovan",
+      "course": "Python Avance",
+      "githubUrl": "https://github.com/alice/projet-python",
+      "grade": 18.0,
+      "createdAt": "2025-11-10T13:27:24.296881",
+      "updatedAt": "2025-11-10T13:31:18.312042"
     }
   ]
 }
