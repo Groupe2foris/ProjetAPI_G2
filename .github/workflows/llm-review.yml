@@ -1,0 +1,136 @@
+name: LLM Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [ devops ]
+
+jobs:
+  review_and_notify:
+    runs-on: ubuntu-latest
+permissions:
+  contents: read
+  pull-requests: write
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install jq
+        run: sudo apt update && sudo apt install jq -y
+      
+      - name: Get PR diff
+        id: diff
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.sha }} --depth=1
+          git fetch origin HEAD
+          DIFF=$(git diff --unified=5 origin/${{ github.event.pull_request.base.sha }}...HEAD | head -c 30000)  # Limite à 30k chars pour éviter token limits
+          echo "diff<<EOF" >> $GITHUB_OUTPUT
+          echo "$DIFF" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install Python dependencies
+        run: pip install google-generativeai
+      
+      - name: Call LLM API
+        id: llm
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          cat <<EOF > review_script.py
+          import os
+          import google.generativeai as genai
+
+          genai.configure(api_key=os.environ['GEMINI_API_KEY'])
+
+          model = genai.GenerativeModel('gemini-1.5-flash')
+
+          prompt = """Tu es un relecteur de code expert. Analyse ce diff et fournis des pistes d'amélioration ou liste les bugs trouvés. Réponds en français.
+
+          ${{ steps.diff.outputs.diff }}"""
+
+          try:
+              response = model.generate_content(prompt)
+              review = response.text.strip()
+          except Exception as e:
+              review = f"Erreur lors de la génération de la revue : {str(e)}"
+
+          print(review)
+          EOF
+
+          REVIEW=$(python review_script.py)
+          echo "review<<EOF" >> $GITHUB_OUTPUT
+          echo "$REVIEW" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: Comment on PR
+        uses: actions/github-script@v6
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '**Revue LLM** @${{ github.actor }}\n\n${{ steps.llm.outputs.review }}'
+            })
+      
+      - name: Send Personalized Emails
+        env:
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        run: |
+          echo "::add-mask::${{ secrets.MAIL_FROM }}"
+          echo "::add-mask::${{ secrets.MAIL_USERNAME }}"
+          echo "::add-mask::${{ secrets.MAIL_PASSWORD }}"
+
+          IFS=',' read -r -a emails <<< "${{ secrets.TEAM_EMAIL_LIST }}"
+          declare -A interests
+          IFS=',' read -r -a pairs <<< "${{ secrets.INTERESTS_MAP }}"
+          for pair in "${pairs[@]}"; do
+            key="${pair%%:*}"
+            value="${pair#*:}"
+            interests["$key"]="$value"
+          done
+          SUBJECT="Revue LLM pour PR #${{ github.event.pull_request.number }} par @${{ github.actor }}"
+          SERVER="smtp.gmail.com"
+          PORT="465"
+          REVIEW="${{ steps.llm.outputs.review }}"
+          for to in "${emails[@]}"; do
+            interest="${interests[$to]:-programmation}"
+            interest="${interest//_/ }"  # Remplace _ par espaces si besoin
+
+            cat <<EOF > motiv_script.py
+            import os
+            import google.generativeai as genai
+
+            genai.configure(api_key=os.environ['GEMINI_API_KEY'])
+
+            model = genai.GenerativeModel('gemini-1.5-flash')
+
+            prompt = """Génère un court paragraphe motivant (3-4 phrases maximum) pour une introduction d'email. 
+            Utilise une ANALOGIE créative et positive tirée de '$interest' pour inspirer l'utilisateur à corriger son code avec détermination, comme une quête victorieuse où chaque bug résolu mène à une réussite plus grande. 
+            Rends-le engageant, encourageant la persévérance et la créativité en programmation. Réponds en français."""
+
+            try:
+                response = model.generate_content(prompt)
+                motiv = response.text.strip()
+            except Exception as e:
+                motiv = f"Erreur lors de la génération de la motivation : {str(e)}"
+
+            print(motiv)
+            EOF
+
+            MOTIV=$(python motiv_script.py)
+            BODY="Motivation\n\n$MOTIV\n\nVoici la revue générée par l'IA :\n\n$REVIEW"
+
+            printf "From: %s\nTo: %s\nSubject: %s\n\n%s" "$MAIL_FROM" "$to" "$SUBJECT" "$BODY" | \
+              curl --url "smtps://$SERVER:$PORT" --ssl-reqd \
+                --mail-from "$MAIL_FROM" --mail-rcpt "$to" \
+                --user "$MAIL_USERNAME:$MAIL_PASSWORD" --upload-file -
+          done
