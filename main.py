@@ -96,13 +96,6 @@ def save_db(data: dict) -> None:
 def create_project(project: ProjectCreate) -> Project:
     """
     **Issue #1 :** Créer un nouveau projet
-
-    Paramètres:
-    - `studentName`: Nom de l'étudiant
-    - `course`: Nom du cours
-    - `githubUrl`: URL du dépôt GitHub
-
-    Retourne: Le projet créé avec un ID unique
     """
     db = load_db()
 
@@ -136,11 +129,6 @@ def create_project(project: ProjectCreate) -> Project:
     description="Récupérer la liste complète de tous les projets soumis",
 )
 def list_projects() -> List[Project]:
-    """
-    **Issue #2 :** Lister tous les projets
-
-    Retourne: Une liste de tous les projets
-    """
     db = load_db()
     return [Project(**project) for project in db["projects"]]
 
@@ -153,14 +141,6 @@ def list_projects() -> List[Project]:
     description="Récupérer les informations complètes d'un projet spécifique",
 )
 def get_project(project_id: str) -> Project:
-    """
-    **Issue #3 :** Obtenir les détails d'un projet par son ID
-
-    Paramètres:
-    - `project_id`: ID unique du projet
-
-    Retourne: Les détails du projet
-    """
     db = load_db()
 
     for project in db["projects"]:
@@ -181,15 +161,6 @@ def get_project(project_id: str) -> Project:
     description="Attribuer une note à un projet (rôle professeur)",
 )
 def grade_project(project_id: str, grade_data: ProjectGrade) -> Project:
-    """
-    **Issue #4 :** Noter un projet
-
-    Paramètres:
-    - `project_id`: ID unique du projet
-    - `grade`: Note à attribuer (0-20)
-
-    Retourne: Le projet mis à jour avec la nouvelle note
-    """
     db = load_db()
 
     for project in db["projects"]:
@@ -213,12 +184,6 @@ def grade_project(project_id: str, grade_data: ProjectGrade) -> Project:
     description="Supprimer un projet de la base de données",
 )
 def delete_project(project_id: str) -> None:
-    """
-    **Issue #5 :** Supprimer une soumission de projet
-
-    Paramètres:
-    - `project_id`: ID unique du projet à supprimer
-    """
     db = load_db()
 
     for i, project in enumerate(db["projects"]):
@@ -241,14 +206,6 @@ def delete_project(project_id: str) -> None:
     description="Récupérer tous les projets d'un cours spécifique",
 )
 def get_projects_by_course(course_name: str) -> List[Project]:
-    """
-    **Issue #6 :** Filtrer et retourner tous les projets d'un cours spécifique
-
-    Paramètres:
-    - `course_name`: Nom du cours
-
-    Retourne: Liste des projets du cours
-    """
     db = load_db()
 
     projects = [
@@ -272,7 +229,7 @@ def get_projects_by_course(course_name: str) -> List[Project]:
     summary="Vérifier la santé de l'API",
     description="Endpoint de vérification de l'état de l'API",
 )
-def health_check() -> dict:
+ def health_check() -> dict:  # ❌ ERREUR volontaire : indentation incorrecte
     """Vérifier que l'API fonctionne correctement"""
     return {"status": "ok", "message": "ProjetAPI is running"}
 
